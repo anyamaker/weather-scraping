@@ -37,5 +37,24 @@ driver.quit()
 df = pd.DataFrame(results)
 df.to_csv("weather_all_cities.csv", index=False)
 
+# --- Data Cleaning ---
+# Remove duplicate cities
+df = df.drop_duplicates(subset="City", keep="first")
+
+# Extract numeric temperature (remove "°F" and convert to integer)
+df['Temp_F'] = df['Temperature'].str.replace(' °F', '').astype(int)
+
+# Extract day and time from "Day & Time" column
+df['Day'] = df['Day & Time'].str.split().str[0]
+df['Time'] = df['Day & Time'].str.split(n=1).str[1]
+
+# Remove any rows with missing critical data
+df = df.dropna(subset=['City', 'Temp_F'])
+
+# Reorder columns
+df = df[['City', 'Temp_F', 'Day', 'Time', 'Condition']]
+
+# Save cleaned version
+df.to_csv("weather_cleaned.csv", index=False)
+print(f"Cleaned data: {len(df)} cities")
 print(df.head(20))      # first 20 rows
-print(f"Total rows: {len(df)}")
